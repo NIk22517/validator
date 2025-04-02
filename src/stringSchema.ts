@@ -3,58 +3,88 @@ import type { ValidationResult } from "./baseSchema";
 import { ValidationStringError } from "./errors";
 
 export type StringCheck =
-  | { kind: "default"; message?: string }
-  | { kind: "min"; value: number; message?: string }
-  | { kind: "max"; value: number; message?: string }
-  | { kind: "length"; value: number; message?: string }
-  | { kind: "startsWith"; value: string; message?: string }
-  | { kind: "endsWith"; value: string; message?: string }
-  | { kind: "regex"; regex: RegExp; message?: string }
-  | { kind: "trim"; message?: string }
-  | { kind: "toLowerCase"; message?: string }
-  | { kind: "toUpperCase"; message?: string }
-  | { kind: "includes"; value: string; message?: string }
-  | { kind: "email"; message?: string }
-  | { kind: "url"; message?: string };
+  | { kind: "min" | "max" | "length"; value: number; message?: string }
+  | {
+      kind: "startsWith" | "endsWith" | "includes";
+      value: string;
+      message?: string;
+    }
+  | { kind: "regex"; value: RegExp; message?: string } // Ensure 'value' is RegExp instead of 'regex'
+  | { kind: "trim" | "toLowerCase" | "toUpperCase"; message?: string }
+  | { kind: "email" | "url"; message?: string }
+  | { kind: "optional" | "required"; message?: string };
+
+const ValidationStringErrorMessages = {
+  startsWith: ValidationStringError.START_ERROR,
+  endsWith: ValidationStringError.END_ERROR,
+  includes: ValidationStringError.INCLUDES_ERROR,
+};
 
 export class StringSchema extends Schema<string> {
   private readonly checks: StringCheck[] = [];
-  private readonly defaultCheck: StringCheck = { kind: "default" };
   private readonly emailRegex =
-    /^(?!\.)(?!.*\.\.)([A-Z0-9_'+\-\.]*)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9\-]*\.)+[A-Z]{2,}$/i;
-  private doConvert = false;
+    /^(?!\.)(?!.*\.\.)([A-Z0-9_'+\-\.]+)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9\-]*\.)+[A-Z]{2,}$/i;
+  private defaultCheck: string | null = null;
+  private readonly defaultError: string | null = null;
+  private coerceEnabled = false;
 
   constructor({ message }: { message?: string } = {}) {
     super();
-    if (message) {
-      this.addCheck({ kind: "default", message });
-    }
+    this.defaultError = message ?? null;
   }
 
-  private addCheck(check: StringCheck) {
+  private addCheck<T extends StringCheck>(check: T) {
     this.checks.push(check);
   }
 
+  private createMethod<T extends StringCheck>(
+    kind: T["kind"],
+    value?: T extends { value: infer V } ? V : never,
+    message?: string
+  ) {
+    this.addCheck({
+      kind,
+      ...(value !== undefined ? { value } : {}),
+      message,
+    } as T);
+    return this;
+  }
+
+  private coerceToString(value: unknown): string {
+    if (typeof value === "string") return value;
+    if (typeof value === "number" || typeof value === "boolean")
+      return String(value);
+    if (typeof value === "undefined" || !value) return "";
+    return JSON.stringify(value);
+  }
+
   parse(value: unknown): ValidationResult<string> {
+    if (this.coerceEnabled) value = this.coerceToString(value);
+
     if (typeof value !== "string") {
-      if (this.defaultCheck.message) {
+      if (this.checks.find((check) => check.kind === "required")) {
         return {
-          success: true,
-          data: this.defaultCheck.message,
+          success: false,
+          errors: [
+            this.checks.find((check) => check.kind === "required")?.message ??
+              ValidationStringError.REQUIRED_ERROR,
+          ],
         };
       }
-      return {
-        success: false,
-        errors: [
-          this.checks.find((el) => el.kind === "default")?.message ??
-            ValidationStringError.NOT_A_STRING,
-        ],
-      };
+      if (this.checks.find((check) => check.kind === "optional")) {
+        return { success: true, data: "" };
+      }
+      return this.defaultCheck
+        ? { success: true, data: this.defaultCheck }
+        : {
+            success: false,
+            errors: [this.defaultError ?? ValidationStringError.NOT_A_STRING],
+          };
     }
 
     let transformedValue = value;
-
     for (const check of this.checks) {
+      if (check.kind === "optional" || check.kind === "required") continue;
       switch (check.kind) {
         case "min":
           if (transformedValue.length < check.value) {
@@ -64,7 +94,6 @@ export class StringSchema extends Schema<string> {
             };
           }
           break;
-
         case "max":
           if (transformedValue.length > check.value) {
             return {
@@ -73,7 +102,6 @@ export class StringSchema extends Schema<string> {
             };
           }
           break;
-
         case "length":
           if (transformedValue.length !== check.value) {
             return {
@@ -82,55 +110,35 @@ export class StringSchema extends Schema<string> {
             };
           }
           break;
-
         case "startsWith":
-          if (!transformedValue.startsWith(check.value)) {
-            return {
-              success: false,
-              errors: [check.message ?? ValidationStringError.START_ERROR],
-            };
-          }
-          break;
-
         case "endsWith":
-          if (!transformedValue.endsWith(check.value)) {
+        case "includes":
+          if (!transformedValue[check.kind](check.value)) {
             return {
               success: false,
-              errors: [check.message ?? ValidationStringError.END_ERROR],
+              errors: [
+                check.message ?? ValidationStringErrorMessages[check.kind],
+              ],
             };
           }
           break;
-
         case "regex":
-          if (!check.regex.test(transformedValue)) {
+          if (!check.value.test(transformedValue)) {
             return {
               success: false,
               errors: [check.message ?? ValidationStringError.REGEX_ERROR],
             };
           }
           break;
-
         case "trim":
           transformedValue = transformedValue.trim();
           break;
-
         case "toLowerCase":
           transformedValue = transformedValue.toLowerCase();
           break;
-
         case "toUpperCase":
           transformedValue = transformedValue.toUpperCase();
           break;
-
-        case "includes":
-          if (!transformedValue.includes(check.value)) {
-            return {
-              success: false,
-              errors: [check.message ?? ValidationStringError.INCLUDES_ERROR],
-            };
-          }
-          break;
-
         case "email":
           if (!this.emailRegex.test(transformedValue)) {
             return {
@@ -139,7 +147,6 @@ export class StringSchema extends Schema<string> {
             };
           }
           break;
-
         case "url":
           try {
             new URL(transformedValue);
@@ -152,75 +159,61 @@ export class StringSchema extends Schema<string> {
           break;
       }
     }
-
     return { success: true, data: transformedValue };
   }
 
   min(length: number, { message }: { message?: string } = {}) {
-    this.addCheck({ kind: "min", value: length, message });
-    return this;
+    return this.createMethod("min", length, message);
   }
-
   max(length: number, { message }: { message?: string } = {}) {
-    this.addCheck({ kind: "max", value: length, message });
-    return this;
+    return this.createMethod("max", length, message);
   }
-
   length(length: number, { message }: { message?: string } = {}) {
-    this.addCheck({ kind: "length", value: length, message });
-    return this;
+    return this.createMethod("length", length, message);
   }
-
   startsWith(value: string, { message }: { message?: string } = {}) {
-    this.addCheck({ kind: "startsWith", value, message });
-    return this;
+    return this.createMethod("startsWith", value, message);
   }
-
   endsWith(value: string, { message }: { message?: string } = {}) {
-    this.addCheck({ kind: "endsWith", value, message });
-    return this;
+    return this.createMethod("endsWith", value, message);
   }
-
   regex(regex: RegExp, { message }: { message?: string } = {}) {
-    this.addCheck({ kind: "regex", regex, message });
-    return this;
+    return this.createMethod("regex", regex, message);
   }
-
   trim() {
-    this.addCheck({ kind: "trim" });
-    return this;
+    return this.createMethod("trim");
   }
-
   toLowerCase() {
-    this.addCheck({ kind: "toLowerCase" });
-    return this;
+    return this.createMethod("toLowerCase");
   }
-
   toUpperCase() {
-    this.addCheck({ kind: "toUpperCase" });
-    return this;
+    return this.createMethod("toUpperCase");
   }
-
   includes(value: string, { message }: { message?: string } = {}) {
-    this.addCheck({ kind: "includes", value, message });
-    return this;
+    return this.createMethod("includes", value, message);
   }
-
   email({ message }: { message?: string } = {}) {
-    this.addCheck({ kind: "email", message });
-    return this;
+    return this.createMethod("email", undefined, message);
   }
   url({ message }: { message?: string } = {}) {
-    this.addCheck({ kind: "url", message });
-    return this;
+    return this.createMethod("url", undefined, message);
+  }
+
+  optional() {
+    return this.createMethod("optional");
+  }
+
+  required({ message }: { message?: string } = {}) {
+    return this.createMethod("required", undefined, message);
   }
 
   default(value: unknown) {
-    this.defaultCheck.message = typeof value === "string" ? value : "";
+    this.defaultCheck = this.coerceToString(value);
     return this;
   }
-  convert() {
-    this.doConvert = true;
+
+  coerce() {
+    this.coerceEnabled = true;
     return this;
   }
 }

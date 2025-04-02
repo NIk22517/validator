@@ -304,3 +304,91 @@ describe("default value for string", () => {
     expect(schema.parse("world")).toEqual({ success: true, data: "world" });
   });
 });
+
+describe("start coerce", () => {
+  test("start coerce number", () => {
+    const schema = z.string().coerce();
+    expect(schema.parse(123)).toEqual({ success: true, data: "123" });
+  });
+
+  test("start coerce boolean", () => {
+    const schema = z.string().coerce();
+    expect(schema.parse(true)).toEqual({ success: true, data: "true" });
+  });
+
+  test("start coerce null", () => {
+    const schema = z.string().coerce();
+    expect(schema.parse(null)).toEqual({ success: true, data: "" });
+  });
+  test("start coerce undefined", () => {
+    const schema = z.string().coerce();
+    expect(schema.parse(undefined)).toEqual({ success: true, data: "" });
+  });
+  test("start coerce object", () => {
+    const schema = z.string().coerce();
+    expect(schema.parse({})).toEqual({
+      success: true,
+      data: "{}",
+    });
+  });
+  test("start coerce array", () => {
+    const schema = z.string().coerce();
+
+    expect(schema.parse([1, 2, 3])).toEqual({
+      success: true,
+      data: "[1,2,3]",
+    });
+  });
+});
+
+describe("optional string", () => {
+  test("optional string", () => {
+    const schema = z.string().optional();
+    expect(schema.parse(undefined)).toEqual({ success: true, data: "" });
+  });
+
+  test("optional string with value", () => {
+    const schema = z.string().optional();
+    expect(schema.parse("hello")).toEqual({ success: true, data: "hello" });
+  });
+
+  test("optional string with null", () => {
+    const schema = z.string().optional();
+    expect(schema.parse(null)).toEqual({ success: true, data: "" });
+  });
+  test("optional string with number", () => {
+    const schema = z.string().optional();
+    expect(schema.parse(123)).toEqual({ success: true, data: "" });
+  });
+});
+
+describe("required string", () => {
+  test("required string", () => {
+    const schema = z.string().required();
+    expect(schema.parse("hello")).toEqual({ success: true, data: "hello" });
+  });
+
+  test("required string with null", () => {
+    const schema = z.string().required();
+    expect(schema.parse(null)).toEqual({
+      success: false,
+      errors: [ValidationStringError.REQUIRED_ERROR],
+    });
+  });
+
+  test("required string with undefined", () => {
+    const schema = z.string().required();
+    expect(schema.parse(undefined)).toEqual({
+      success: false,
+      errors: [ValidationStringError.REQUIRED_ERROR],
+    });
+  });
+
+  test("required string with custom message", () => {
+    const schema = z.string().required({ message: "String is required" });
+    expect(schema.parse(undefined)).toEqual({
+      success: false,
+      errors: ["String is required"],
+    });
+  });
+});

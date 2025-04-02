@@ -10,4 +10,5 @@ export enum ValidationStringError {
   INVALID_URL = "Invalid URL",
   INCLUDES_ERROR = "String must include specified value",
   EXCLUDES_ERROR = "String must exclude specified value",
+  REQUIRED_ERROR = "String is required",
 }
