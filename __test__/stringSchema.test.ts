@@ -12,7 +12,16 @@ describe("test pass value is string or not", () => {
     const schema = z.string();
     expect(schema.parse(123)).toEqual({
       success: false,
-      errors: [ValidationStringError.NOT_A_STRING],
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.NOT_A_STRING,
+          operation: "type",
+          expectedType: "string",
+          receivedValue: 123,
+          suggestion: "value must be a string",
+        },
+      ],
     });
   });
   test("Empty string should pass", () => {
@@ -31,7 +40,16 @@ describe("test min max length for string", () => {
     const schema = z.string().min(3);
     expect(schema.parse("hi")).toEqual({
       success: false,
-      errors: [ValidationStringError.TOO_SHORT],
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.TOO_SHORT,
+          operation: "min",
+          expectedType: "string",
+          receivedValue: "hi",
+          suggestion: "value must be at least 3 characters long",
+        },
+      ],
     });
   });
 
@@ -47,7 +65,16 @@ describe("test min max length for string", () => {
     const schema = z.string().min(3).max(10);
     expect(schema.parse("hello hello hello")).toEqual({
       success: false,
-      errors: [ValidationStringError.TOO_LONG],
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.TOO_LONG,
+          operation: "max",
+          expectedType: "string",
+          receivedValue: "hello hello hello",
+          suggestion: "value must be at most 10 characters long",
+        },
+      ],
     });
   });
 });
@@ -59,7 +86,16 @@ describe("custom error message for min max string", () => {
     });
     expect(schema.parse("hi")).toEqual({
       success: false,
-      errors: ["Message should be 3 character long"],
+      errors: [
+        {
+          field: "value",
+          message: "Message should be 3 character long",
+          operation: "min",
+          expectedType: "string",
+          receivedValue: "hi",
+          suggestion: "value must be at least 3 characters long",
+        },
+      ],
     });
   });
 
@@ -69,7 +105,16 @@ describe("custom error message for min max string", () => {
     });
     expect(schema.parse("hello hello hello")).toEqual({
       success: false,
-      errors: ["Message should not exceed 10 character"],
+      errors: [
+        {
+          field: "value",
+          message: "Message should not exceed 10 character",
+          operation: "max",
+          expectedType: "string",
+          receivedValue: "hello hello hello",
+          suggestion: "value must be at most 10 characters long",
+        },
+      ],
     });
   });
 });
@@ -84,7 +129,16 @@ describe("check string length", () => {
     const schema = z.string().length(5);
     expect(schema.parse("hi")).toEqual({
       success: false,
-      errors: [ValidationStringError.INVALID_LENGTH],
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.INVALID_LENGTH,
+          operation: "length",
+          expectedType: "string",
+          receivedValue: "hi",
+          suggestion: "value must be exactly 5 characters long",
+        },
+      ],
     });
   });
 
@@ -94,7 +148,16 @@ describe("check string length", () => {
     });
     expect(schema.parse("hi")).toEqual({
       success: false,
-      errors: ["Message should be 5 character long"],
+      errors: [
+        {
+          field: "value",
+          message: "Message should be 5 character long",
+          operation: "length",
+          expectedType: "string",
+          receivedValue: "hi",
+          suggestion: "value must be exactly 5 characters long",
+        },
+      ],
     });
   });
 });
@@ -104,7 +167,16 @@ describe("custom message for string", () => {
     const schema = z.string({ message: "Must be string" });
     expect(schema.parse(123)).toEqual({
       success: false,
-      errors: ["Must be string"],
+      errors: [
+        {
+          field: "value",
+          message: "Must be string",
+          operation: "type",
+          expectedType: "string",
+          receivedValue: 123,
+          suggestion: "value must be a string",
+        },
+      ],
     });
   });
 });
@@ -143,7 +215,16 @@ describe("string startsWith", () => {
     const schema = z.string().startsWith("hello");
     expect(schema.parse("world hello")).toEqual({
       success: false,
-      errors: [ValidationStringError.START_ERROR],
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.START_ERROR,
+          operation: "startsWith",
+          expectedType: "string",
+          receivedValue: "world hello",
+          suggestion: 'value must startsWith "hello"',
+        },
+      ],
     });
   });
 
@@ -153,7 +234,16 @@ describe("string startsWith", () => {
     });
     expect(schema.parse("world hello")).toEqual({
       success: false,
-      errors: ["String should start with hello"],
+      errors: [
+        {
+          field: "value",
+          message: "String should start with hello",
+          operation: "startsWith",
+          expectedType: "string",
+          receivedValue: "world hello",
+          suggestion: 'value must startsWith "hello"',
+        },
+      ],
     });
   });
 });
@@ -171,7 +261,16 @@ describe("string endsWith", () => {
     const schema = z.string().endsWith("world");
     expect(schema.parse("hello hello")).toEqual({
       success: false,
-      errors: [ValidationStringError.END_ERROR],
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.END_ERROR,
+          operation: "endsWith",
+          expectedType: "string",
+          receivedValue: "hello hello",
+          suggestion: 'value must endsWith "world"',
+        },
+      ],
     });
   });
   test("custom message for endsWith", () => {
@@ -180,7 +279,16 @@ describe("string endsWith", () => {
     });
     expect(schema.parse("hello hello")).toEqual({
       success: false,
-      errors: ["String should end with world"],
+      errors: [
+        {
+          field: "value",
+          message: "String should end with world",
+          operation: "endsWith",
+          expectedType: "string",
+          receivedValue: "hello hello",
+          suggestion: 'value must endsWith "world"',
+        },
+      ],
     });
   });
 });
@@ -195,7 +303,16 @@ describe("string regex", () => {
     const schema = z.string().regex(/^\d+$/);
     expect(schema.parse("hello")).toEqual({
       success: false,
-      errors: [ValidationStringError.REGEX_ERROR],
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.REGEX_ERROR,
+          operation: "regex",
+          expectedType: "string",
+          receivedValue: "hello",
+          suggestion: `value must match the regex ${/^\d+$/}`,
+        },
+      ],
     });
   });
 
@@ -205,7 +322,16 @@ describe("string regex", () => {
     });
     expect(schema.parse("hello")).toEqual({
       success: false,
-      errors: ["String should be a number"],
+      errors: [
+        {
+          field: "value",
+          message: "String should be a number",
+          operation: "regex",
+          expectedType: "string",
+          receivedValue: "hello",
+          suggestion: `value must match the regex ${/^\d+$/}`,
+        },
+      ],
     });
   });
 });
@@ -223,7 +349,16 @@ describe("email validation", () => {
     const schema = z.string().email();
     expect(schema.parse("hello@hello")).toEqual({
       success: false,
-      errors: [ValidationStringError.INVALID_EMAIL],
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.INVALID_EMAIL,
+          operation: "email",
+          expectedType: "string",
+          receivedValue: "hello@hello",
+          suggestion: "value must be a valid email address",
+        },
+      ],
     });
   });
 
@@ -233,7 +368,16 @@ describe("email validation", () => {
     });
     expect(schema.parse("hello@hello")).toEqual({
       success: false,
-      errors: ["Invalid email"],
+      errors: [
+        {
+          field: "value",
+          message: "Invalid email",
+          operation: "email",
+          expectedType: "string",
+          receivedValue: "hello@hello",
+          suggestion: "value must be a valid email address",
+        },
+      ],
     });
   });
 });
@@ -251,7 +395,16 @@ describe("url validation", () => {
     const schema = z.string().url();
     expect(schema.parse("hello")).toEqual({
       success: false,
-      errors: [ValidationStringError.INVALID_URL],
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.INVALID_URL,
+          operation: "url",
+          expectedType: "string",
+          receivedValue: "hello",
+          suggestion: "value must be a valid URL",
+        },
+      ],
     });
   });
 
@@ -261,7 +414,16 @@ describe("url validation", () => {
     });
     expect(schema.parse("hello")).toEqual({
       success: false,
-      errors: ["Invalid URL"],
+      errors: [
+        {
+          field: "value",
+          message: "Invalid URL",
+          operation: "url",
+          expectedType: "string",
+          receivedValue: "hello",
+          suggestion: "value must be a valid URL",
+        },
+      ],
     });
   });
 });
@@ -279,7 +441,16 @@ describe("string includes", () => {
     const schema = z.string().includes("hello");
     expect(schema.parse("world")).toEqual({
       success: false,
-      errors: [ValidationStringError.INCLUDES_ERROR],
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.INCLUDES_ERROR,
+          operation: "includes",
+          expectedType: "string",
+          receivedValue: "world",
+          suggestion: 'value must includes "hello"',
+        },
+      ],
     });
   });
 
@@ -289,7 +460,16 @@ describe("string includes", () => {
     });
     expect(schema.parse("world")).toEqual({
       success: false,
-      errors: ["String should include hello"],
+      errors: [
+        {
+          field: "value",
+          message: "String should include hello",
+          operation: "includes",
+          expectedType: "string",
+          receivedValue: "world",
+          suggestion: 'value must includes "hello"',
+        },
+      ],
     });
   });
 });
@@ -372,7 +552,16 @@ describe("required string", () => {
     const schema = z.string().required();
     expect(schema.parse(null)).toEqual({
       success: false,
-      errors: [ValidationStringError.REQUIRED_ERROR],
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.REQUIRED_ERROR,
+          operation: "required",
+          expectedType: "string",
+          receivedValue: null,
+          suggestion: "value must be a string",
+        },
+      ],
     });
   });
 
@@ -380,7 +569,16 @@ describe("required string", () => {
     const schema = z.string().required();
     expect(schema.parse(undefined)).toEqual({
       success: false,
-      errors: [ValidationStringError.REQUIRED_ERROR],
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.REQUIRED_ERROR,
+          operation: "required",
+          expectedType: "string",
+          receivedValue: undefined,
+          suggestion: "value must be a string",
+        },
+      ],
     });
   });
 
@@ -388,7 +586,379 @@ describe("required string", () => {
     const schema = z.string().required({ message: "String is required" });
     expect(schema.parse(undefined)).toEqual({
       success: false,
-      errors: ["String is required"],
+      errors: [
+        {
+          field: "value",
+          message: "String is required",
+          operation: "required",
+          expectedType: "string",
+          receivedValue: undefined,
+          suggestion: "value must be a string",
+        },
+      ],
+    });
+  });
+});
+
+describe("check all capitilization", () => {
+  test("check empty string", () => {
+    const schema = z.string().capitalize();
+    expect(schema.parse("")).toEqual({ success: true, data: "" });
+  });
+  test("check capitilization default", () => {
+    const schema = z.string().capitalize();
+    expect(schema.parse("hello world")).toEqual({
+      success: true,
+      data: "Hello world",
+    });
+  });
+
+  test("check captilization with title", () => {
+    const schema = z.string().capitalize({
+      style: "title",
+    });
+    expect(schema.parse("hello world")).toEqual({
+      success: true,
+      data: "Hello World",
+    });
+  });
+
+  test("check captilization with upper", () => {
+    const schema = z.string().capitalize({
+      style: "uppercase",
+    });
+    expect(schema.parse("hello world")).toEqual({
+      success: true,
+      data: "HELLO WORLD",
+    });
+  });
+
+  test("check captilization with lower", () => {
+    const schema = z.string().capitalize({
+      style: "lowercase",
+    });
+    expect(schema.parse("HELLO WORLD")).toEqual({
+      success: true,
+      data: "hello world",
+    });
+  });
+  test("check captilization with pascal", () => {
+    const schema = z.string().capitalize({
+      style: "pascal",
+    });
+    expect(schema.parse("hello world")).toEqual({
+      success: true,
+      data: "HelloWorld",
+    });
+  });
+  test("check captilization with camel", () => {
+    const schema = z.string().capitalize({
+      style: "camel",
+    });
+    expect(schema.parse("hello world")).toEqual({
+      success: true,
+      data: "helloWorld",
+    });
+  });
+  test("check captilization with custom separator", () => {
+    const schema = z.string().capitalize({
+      style: "title",
+      separator: "-",
+    });
+    expect(schema.parse("hello-world")).toEqual({
+      success: true,
+      data: "Hello-World",
+    });
+  });
+  test("check captilization with custom separator", () => {
+    const schema = z.string().capitalize({
+      style: "title",
+      separator: "_",
+    });
+    expect(schema.parse("hello_world")).toEqual({
+      success: true,
+      data: "Hello_World",
+    });
+  });
+});
+
+describe("check slugify", () => {
+  test("check slugify", () => {
+    const schema = z.string().slugify();
+    expect(schema.parse("Hello World")).toEqual({
+      success: true,
+      data: "hello-world",
+    });
+  });
+
+  test("check slugify with custom separator", () => {
+    const schema = z.string().slugify("-");
+    expect(schema.parse("Hello World")).toEqual({
+      success: true,
+      data: "hello-world",
+    });
+  });
+
+  test("check slugify with custom separator", () => {
+    const schema = z.string().slugify("_");
+    expect(schema.parse("Hello World")).toEqual({
+      success: true,
+      data: "hello_world",
+    });
+  });
+});
+
+describe("check string with alpha", () => {
+  test("check string with alpha", () => {
+    const schema = z.string().alphaOnly();
+    expect(schema.parse("hello")).toEqual({ success: true, data: "hello" });
+  });
+
+  test("check string with alpha fails", () => {
+    const schema = z.string().alphaOnly();
+    expect(schema.parse("hello123")).toEqual({
+      success: false,
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.ALPHA_ONLY,
+          operation: "alphaOnly",
+          expectedType: "string",
+          receivedValue: "hello123",
+          suggestion: `value must contain only alphabetic characters`,
+        },
+      ],
+    });
+  });
+
+  test("check string with alpha custom message", () => {
+    const schema = z.string().alphaOnly({
+      message: "String should contain only letters",
+    });
+    expect(schema.parse("hello123")).toEqual({
+      success: false,
+      errors: [
+        {
+          field: "value",
+          message: "String should contain only letters",
+          operation: "alphaOnly",
+          expectedType: "string",
+          receivedValue: "hello123",
+          suggestion: `value must contain only alphabetic characters`,
+        },
+      ],
+    });
+  });
+});
+
+describe("check string with alpha numeric", () => {
+  test("check string with alpha numeric", () => {
+    const schema = z.string().alphaNumeric();
+    expect(schema.parse("hello123")).toEqual({
+      success: true,
+      data: "hello123",
+    });
+  });
+
+  test("check string with alpha numeric fails", () => {
+    const schema = z.string().alphaNumeric();
+    expect(schema.parse("hello!")).toEqual({
+      success: false,
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.ALPHA_NUMERIC,
+          operation: "alphaNumeric",
+          expectedType: "string",
+          receivedValue: "hello!",
+          suggestion: `value must contain only alphanumeric characters`,
+        },
+      ],
+    });
+  });
+
+  test("check string with alpha numeric custom message", () => {
+    const schema = z.string().alphaNumeric({
+      message: "String should contain only letters and numbers",
+    });
+    expect(schema.parse("hello!")).toEqual({
+      success: false,
+      errors: [
+        {
+          field: "value",
+          message: "String should contain only letters and numbers",
+          operation: "alphaNumeric",
+          expectedType: "string",
+          receivedValue: "hello!",
+          suggestion: `value must contain only alphanumeric characters`,
+        },
+      ],
+    });
+  });
+
+  test("check with string only", () => {
+    const schema = z.string().alphaNumeric();
+    expect(schema.parse("hello")).toEqual({ success: true, data: "hello" });
+  });
+});
+
+describe("check string with allow char", () => {
+  test("check string with allow char", () => {
+    const schema = z.string().allowChar("abc123");
+    expect(schema.parse("abc")).toEqual({
+      success: true,
+      data: "abc",
+    });
+  });
+
+  test("check string with allow char fails", () => {
+    const schema = z.string().allowChar("!@#$%^&*()_+");
+    expect(schema.parse("hello123")).toEqual({
+      success: false,
+      errors: [
+        {
+          field: "value",
+          message: ValidationStringError.ALLOW_CHAR,
+          operation: "allowChar",
+          expectedType: "string",
+          receivedValue: "hello123",
+          suggestion: `value must contain only allowed characters`,
+        },
+      ],
+    });
+  });
+
+  test("check string with allow char custom message", () => {
+    const schema = z.string().allowChar("!@#$%^&*()_+", {
+      message:
+        "String should contain only letters, numbers, and specified characters",
+    });
+    expect(schema.parse("hello123")).toEqual({
+      success: false,
+      errors: [
+        {
+          field: "value",
+          message:
+            "String should contain only letters, numbers, and specified characters",
+          operation: "allowChar",
+          expectedType: "string",
+          receivedValue: "hello123",
+          suggestion: `value must contain only allowed characters`,
+        },
+      ],
+    });
+  });
+});
+
+describe("StringSchema - blockChars", () => {
+  test("should allow string without blocked characters", () => {
+    const schema = z.string().blockChar("!@#");
+    expect(schema.parse("hello")).toEqual({ success: true, data: "hello" });
+  });
+
+  test("should fail when string contains blocked characters", () => {
+    const schema = z.string().blockChar("!@#", {
+      message: "String contains blocked characters: !",
+    });
+    expect(schema.parse("hello!")).toEqual({
+      success: false,
+      errors: [
+        {
+          field: "value",
+          message: "String contains blocked characters: !",
+          operation: "blockChar",
+          expectedType: "string",
+          receivedValue: "hello!",
+          suggestion: `value must not contain blocked characters`,
+        },
+      ],
+    });
+  });
+
+  test("should fail when multiple blocked characters are present", () => {
+    const schema = z.string().blockChar("!@#", {
+      message: "String contains blocked characters: @, #",
+    });
+    expect(schema.parse("test@string#")).toEqual({
+      success: false,
+      errors: [
+        {
+          field: "value",
+          message: "String contains blocked characters: @, #",
+          operation: "blockChar",
+          expectedType: "string",
+          receivedValue: "test@string#",
+          suggestion: `value must not contain blocked characters`,
+        },
+      ],
+    });
+  });
+
+  test("should allow empty string even if blocking characters exist", () => {
+    const schema = z.string().blockChar("!@#");
+    expect(schema.parse("")).toEqual({ success: true, data: "" });
+  });
+
+  test("should not modify the string if it does not contain blocked characters", () => {
+    const schema = z.string().blockChar("123");
+    expect(schema.parse("abcdef")).toEqual({ success: true, data: "abcdef" });
+  });
+
+  test("should allow normal alphanumeric characters when no block is applied", () => {
+    const schema = z.string();
+    expect(schema.parse("hello123")).toEqual({
+      success: true,
+      data: "hello123",
+    });
+  });
+
+  test("should work with multiple blocked characters in a row", () => {
+    const schema = z.string().blockChar("!@#", {
+      message: "String contains blocked characters: !, @, #",
+    });
+    expect(schema.parse("!@#test@!")).toEqual({
+      success: false,
+      errors: [
+        {
+          field: "value",
+          message: "String contains blocked characters: !, @, #",
+          operation: "blockChar",
+          expectedType: "string",
+          receivedValue: "!@#test@!",
+          suggestion: `value must not contain blocked characters`,
+        },
+      ],
+    });
+  });
+});
+
+describe("StringSchema - censor", () => {
+  test("should censor sensitive information", () => {
+    const schema = z.string().censor({
+      censor: "password",
+    });
+    expect(schema.parse("my password is secret")).toEqual({
+      success: true,
+      data: "my ******** is secret",
+    });
+  });
+
+  test("should not modify string if no sensitive information is present", () => {
+    const schema = z.string().censor();
+    expect(schema.parse("hello world")).toEqual({
+      success: true,
+      data: "hello world",
+    });
+  });
+
+  test("should work with multiple sensitive words", () => {
+    const schema = z.string().censor({
+      censor: ["password", "secret"],
+    });
+
+    expect(schema.parse("my password and secret are safe")).toEqual({
+      success: true,
+      data: "my ******** and ****** are safe",
     });
   });
 });

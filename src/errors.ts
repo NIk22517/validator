@@ -11,4 +11,8 @@ export enum ValidationStringError {
   INCLUDES_ERROR = "String must include specified value",
   EXCLUDES_ERROR = "String must exclude specified value",
   REQUIRED_ERROR = "String is required",
+  ALPHA_ONLY = "String must contain only letters",
+  ALPHA_NUMERIC = "String must contain only letters and numbers",
+  ALLOW_CHAR = "String must contain only letters, numbers, and specified characters",
+  BLOCK_CHAR = "String must contain only letters, numbers, and not contain specified characters",
 }
