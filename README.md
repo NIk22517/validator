@@ -8,7 +8,19 @@ A TypeScript library for validating strings with various constraints. This libra
 npm install validease
 ```
 
-## Features
+## Table of Contents
+
+- [String Validation](#string-validation)
+- [Number Validation](#number-validation)
+
+## String Validation (#string-validation)
+
+ValidEase provides a simple and intuitive API for validating strings. It allows you to set various constraints on string inputs, such as length, format, and character restrictions.
+This library is designed to be easy to use and integrate into your TypeScript projects.
+It provides detailed error messages to help you understand why a validation failed, making it easier to debug and provide feedback to users.
+It is built with TypeScript, ensuring type safety and better developer experience.
+
+## Features(#features)
 
 - [Validate string length](#length-constraints) (`min`, `max`, `length`)
 - [Ensure specific prefixes and suffixes](#starts-with) (`startsWith`, `endsWith`)
@@ -169,9 +181,171 @@ if (!result.success) {
 }
 ```
 
-## Conclusion
+## Number Validation(#number-validation)
 
-ValidEase simplifies string validation with detailed error messages for better debugging. You can integrate it into any TypeScript project that requires robust input validation.
+ValidEase also supports number validation with similar constraints as string validation. You can validate numbers with minimum, maximum, and exact values.
+
+Here’s an enhanced version of the **Number Validation** section in your `README.md`, now including **all supported number validation methods** in ValidEase, such as: `min`, `max`, `int`, `float`, `positive`, `negative`, `nonNegative`, `nonPositive`, `multipleOf`, `between`, `greaterThan`, `lessThan`, and more if relevant.
+
+---
+
+## Number Validation
+
+ValidEase provides a simple and intuitive API for validating numbers. It allows you to set various constraints on number inputs, such as range, exact value, and positivity.
+This library is designed to be easy to use and integrate into your TypeScript projects.
+It provides detailed error messages to help you understand why a validation failed, making it easier to debug and provide feedback to users.
+
+## Features
+
+- [Validate number range](#range-checks) (`min`, `max`, `between`)
+- [Exact value checks](#exact-match) (`equals`)
+- [Greater than / Less than checks](#greaterthan--lessthan) (`greaterThan`, `lessThan`)
+- [Integer and float checks](#integer-and-float-checks) (`int`, `float`)
+- [Positivity checks](#positivity-checks) (`positive`, `negative`, `nonNegative`, `nonPositive`)
+- [Multiple of checks](#multiple-of) (`multipleOf`)
+- [Required and optional](#required-and-optional) (`required`, `optional`)
+- [Custom error messages](#custom-error-messages) with detailed feedback
+- [Advanced error handling](#advanced-error-handling)
+- [Basic number validation](#basic-number-validation)
+- [Custom error messages](#custom-error-messages)
+- [Advanced error handling](#advanced-error-handling)
+
+### [Basic Number Validation](#basic-number-validation)
+
+```ts
+const schema = z.number();
+console.log(schema.parse(42)); // Success
+console.log(schema.parse("42")); // Fails: Value must be a number
+```
+
+### [Range Checks](#range-checks)
+
+```ts
+const schema = z.number().min(10).max(100);
+console.log(schema.parse(50)); // Success
+console.log(schema.parse(5)); // Fails: Must be at least 10
+console.log(schema.parse(150)); // Fails: Must be at most 100
+```
+
+```ts
+const schema = z.number().between({
+  min: 10,
+  max: 100,
+});
+console.log(schema.parse(50)); // Success
+console.log(schema.parse(5)); // Fails: Must be between 10 and 100
+console.log(schema.parse(150)); // Fails: Must be between 10 and 100
+```
+
+### [Exact Match](#exact-match)
+
+```ts
+const schema = z.number().equals(42);
+console.log(schema.parse(42)); // Success
+console.log(schema.parse(50)); // Fails: Must be equal to 42
+```
+
+### [GreaterThan / LessThan](#greaterthan--lessthan)
+
+```ts
+const schema = z.number().gt(10);
+console.log(schema.parse(15)); // Success
+console.log(schema.parse(5)); // Fails: Must be greater than 10
+console.log(schema.parse(10)); // Fails: Must be greater than 10
+```
+
+```ts
+const schema = z.number().lt(100);
+console.log(schema.parse(50)); // Success
+console.log(schema.parse(150)); // Fails: Must be less than 100
+console.log(schema.parse(100)); // Fails: Must be less than 100
+```
+
+### [Integer and Float Checks](#integer-and-float-checks)
+
+```ts
+const schema = z.number().int();
+console.log(schema.parse(42)); // Success
+console.log(schema.parse(42.5)); // Fails: Must be an integer
+```
+
+```ts
+const schema = z.number().float();
+console.log(schema.parse(42.5)); // Success
+console.log(schema.parse(42)); // Fails: Must be a float
+```
+
+### [Positivity Checks](#positivity-checks)
+
+```ts
+const schema = z.number().positive();
+console.log(schema.parse(42)); // Success
+console.log(schema.parse(-42)); // Fails: Must be positive
+```
+
+```ts
+const schema = z.number().negative();
+console.log(schema.parse(-42)); // Success
+console.log(schema.parse(42)); // Fails: Must be negative
+```
+
+```ts
+const schema = z.number().nonNegative();
+console.log(schema.parse(0)); // Success
+console.log(schema.parse(-42)); // Fails: Must be non-negative
+```
+
+```ts
+const schema = z.number().nonPositive();
+console.log(schema.parse(0)); // Success
+console.log(schema.parse(42)); // Fails: Must be non-positive
+```
+
+### [Multiple Of](#multiple-of)
+
+```ts
+const schema = z.number().multipleOf(5);
+console.log(schema.parse(10)); // Success
+console.log(schema.parse(12)); // Fails: Must be a multiple of 5
+```
+
+### [Required and Optional](#required-and-optional)
+
+```ts
+const schema = z.number().required();
+console.log(schema.parse(undefined)); // Fails: Required field
+console.log(schema.parse(42)); // Success
+```
+
+```ts
+const schema = z.number().optional();
+console.log(schema.parse(undefined)); // Success
+console.log(schema.parse(42)); // Success
+```
+
+### [Custom Error Messages](#custom-error-messages)
+
+```ts
+const schema = z.number().min(10, { message: "Input is too low!" });
+console.log(schema.parse(5));
+// { success: false, errors: [{ message: "Input is too low!", field: "value", expectedType: "number", receivedValue: 5 }] }
+```
+
+### [Advanced Error Handling](#advanced-error-handling)
+
+If you want to customize how errors are returned:
+
+```ts
+const schema = z.number().greaterThan(10);
+const result = schema.parse(5);
+if (!result.success) {
+  console.log(result.errors);
+}
+```
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any bugs, features, or improvements.
 
 ## License
 

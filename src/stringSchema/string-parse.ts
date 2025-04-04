@@ -1,5 +1,5 @@
 import type { ValidationResult } from "../baseSchema";
-import { ValidationStringError } from "../errors";
+import { ValidationStringError } from "./string-types";
 import { StringTransform } from "./string-transform";
 import { type StringCheck } from "./string-types";
 

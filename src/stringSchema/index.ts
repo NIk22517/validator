@@ -1,6 +1,6 @@
 import { Schema } from "../baseSchema";
 import type { ValidationResult } from "../baseSchema";
-import { ValidationStringError } from "../errors";
+import { ValidationStringError } from "./string-types";
 import { StringParser } from "./string-parse";
 import {
   type CapitalizeStyle,

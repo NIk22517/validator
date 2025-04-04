@@ -1,5 +1,3 @@
-import { ValidationStringError } from "../errors";
-
 export type CapitalizeStyle =
   | "sentence"
   | "title"
@@ -49,6 +47,25 @@ export type StringCheck =
       };
       message: string;
     };
+
+export enum ValidationStringError {
+  NOT_A_STRING = "Value must be a string",
+  TOO_SHORT = "String is too short",
+  TOO_LONG = "String is too long",
+  INVALID_LENGTH = "String is not equal",
+  START_ERROR = "String must start with specified value",
+  END_ERROR = "String must end with specified value",
+  REGEX_ERROR = "String does not match regex",
+  INVALID_EMAIL = "Invalid email",
+  INVALID_URL = "Invalid URL",
+  INCLUDES_ERROR = "String must include specified value",
+  EXCLUDES_ERROR = "String must exclude specified value",
+  REQUIRED_ERROR = "String is required",
+  ALPHA_ONLY = "String must contain only letters",
+  ALPHA_NUMERIC = "String must contain only letters and numbers",
+  ALLOW_CHAR = "String must contain only letters, numbers, and specified characters",
+  BLOCK_CHAR = "String must contain only letters, numbers, and not contain specified characters",
+}
 
 export const ValidationStringErrorMessages = {
   min: ValidationStringError.TOO_SHORT,

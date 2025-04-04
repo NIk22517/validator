@@ -1,6 +1,6 @@
 import { expect, test, describe } from "bun:test";
 import { z } from "../src/index";
-import { ValidationStringError } from "../src/errors";
+import { ValidationStringError } from "../src/stringSchema/string-types";
 
 describe("test pass value is string or not", () => {
   test("Valid string should pass", () => {
