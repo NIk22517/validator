@@ -1,5 +1,11 @@
 # validease
 
+## 1.0.0
+
+### Major Changes
+
+- d1a2c07: Added Number validation
+
 ## 0.2.1
 
 ### Patch Changes
