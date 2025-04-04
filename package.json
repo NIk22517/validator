@@ -6,7 +6,8 @@
     "dev": "bun run src/index.ts",
     "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap --out-dir dist",
     "test": "bun test",
-    "lint": "bun run lint"
+    "lint": "tsc",
+    "ci": "bun run lint && bun run test && bun run build"
   },
   "devDependencies": {
     "@types/bun": "latest",
