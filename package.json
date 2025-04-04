@@ -14,9 +14,11 @@
     "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap --out-dir dist",
     "test": "bun test",
     "lint": "tsc",
-    "ci": "bun run lint && bun run test && bun run build"
+    "ci": "bun run lint && bun run test && bun run build",
+    "release": "bun run lint && bun run test && bun run build && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.28.1",
     "@types/bun": "latest",
     "tsup": "^8.4.0"
   },
