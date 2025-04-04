@@ -1,6 +1,13 @@
 {
   "name": "validease",
-  "module": "src/index.ts",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "module": "dist/index.mjs",
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "scripts": {
     "dev": "bun run src/index.ts",
