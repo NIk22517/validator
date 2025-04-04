@@ -4,15 +4,36 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
+  "author": "Nikhil Sharma",
+  "description": "A TypeScript library for validating and transforming data.",
+  "repository": {
+    "url": "https://github.com/NIk22517/validator"
+  },
   "module": "dist/index.mjs",
   "private": false,
   "files": [
     "dist"
   ],
+  "keywords": [
+    "typescript",
+    "validation",
+    "data",
+    "transform",
+    "bun"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  
   "type": "module",
   "scripts": {
     "dev": "bun run src/index.ts",
-    "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap --out-dir dist",
+    "build": "tsup src/index.ts --format esm,cjs --dts",
     "test": "bun test",
     "lint": "tsc",
     "ci": "bun run lint && bun run test && bun run build",
