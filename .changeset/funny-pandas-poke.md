@@ -1,5 +1,0 @@
----
-"validease": minor
----
-
-Initial commit
