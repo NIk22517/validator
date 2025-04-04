@@ -1,5 +1,5 @@
 {
-  "name": "validator",
+  "name": "validease",
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
