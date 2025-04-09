@@ -12,6 +12,9 @@ npm install validease
 
 - [String Validation](#string-validation)
 - [Number Validation](#number-validation)
+- [Boolean Validation](#boolean-validation)
+- [Array Validation](#array-validation)
+- [Object Validation](#object-validation)
 
 ## String Validation (#string-validation)
 
@@ -341,6 +344,105 @@ const result = schema.parse(5);
 if (!result.success) {
   console.log(result.errors);
 }
+```
+
+## Boolean Validation
+
+ValidEase provides validation utilities for boolean values, allowing you to enforce true/false expectations and handle optional values.
+
+### Features
+
+- Boolean type validation
+- Enforce specific values (`true`, `false`)
+- Optional and required
+- Custom error messages
+- Advanced error handling
+
+### [Basic Boolean Validation](#basic-boolean-validation)
+
+```ts
+const schema = z.boolean();
+console.log(schema.parse(true)); // Success
+console.log(schema.parse("true")); // Fails: Must be a boolean
+```
+
+### [Strict Boolean Match](#strict-boolean-match)
+
+```ts
+const schema = z.boolean().equals(true);
+console.log(schema.parse(true)); // Success
+console.log(schema.parse(false)); // Fails: Must be true
+```
+
+### [Optional](#required-and-optional)
+
+```ts
+const schema2 = z.boolean().optional();
+console.log(schema2.parse(undefined)); // Success
+```
+
+---
+
+## Array Validation
+
+ValidEase supports validation of arrays, including item type checks, minimum/maximum length, uniqueness, and more.
+
+### Features
+
+- Enforce array item types
+
+### [Basic Array Validation](#basic-array-validation)
+
+```ts
+const schema = z.array(z.string());
+console.log(schema.parse(["a", "b", "c"])); // Success
+console.log(schema.parse(["a", 1])); // Fails: Element must be a string
+```
+
+---
+
+## Object Validation
+
+ValidEase allows you to validate object shapes, including nested structures, required keys, and specific value types.
+
+### Features
+
+- Schema validation for object properties
+- Nested object validation
+- Optional and required keys
+- Custom error messages
+- Advanced error handling
+
+### [Basic Object Validation](#basic-object-validation)
+
+```ts
+const schema = z.object({
+  name: z.string().required(),
+  age: z.number().optional(),
+});
+console.log(schema.parse({ name: "Alice" })); // Success
+console.log(schema.parse({ age: 25 })); // Fails: name is required
+```
+
+### [Nested Object Validation](#nested-object-validation)
+
+```ts
+const schema = z.object({
+  user: z.object({
+    email: z.string().email(),
+    profile: z.object({
+      bio: z.string().optional(),
+    }),
+  }),
+});
+console.log(
+  schema.parse({
+    user: {
+      email: "test@example.com",
+      profile: { bio: "Developer" },
+    },
+  })
+); // Success
 ```
 
 ## Contributing
